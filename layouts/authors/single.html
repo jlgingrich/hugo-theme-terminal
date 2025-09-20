@@ -2,42 +2,24 @@
 <article class="author">
   <h1 class="author-title">
     <a href="{{ .Permalink }}">{{ .Title | markdownify }}</a>
+    {{- /* Set defaults and get args. */}}
+    {{- $address := .Params.Email }}
+
+    {{- /* Get parts. */}}
+    {{- $addressParts := split $address "@" }}
+    {{- $userName := (index $addressParts 0) }}
+    {{- $rootDomain := (index $addressParts 1) }}
+    {{- $rootDomainParts := split $rootDomain "." }}
+    {{- $domainName := (index $rootDomainParts 0) }}
+    {{- $topLevelDomain := (index $rootDomainParts 1) }}
+
+    {{- /* Render. */}}
+    <span class="email">
+      {{- printf "(%s@%s<b>.%s</b>.%s)" $userName $domainName $domainName $topLevelDomain | safeHTML -}}
+    </span>
   </h1>
-  <div class="author-meta">
-    {{- if .Date -}}
-    <time class="author-date">
-      {{- partial "author-date" . -}}
-      {{- if and $.Site.Params.showLastUpdated .Lastmod -}}
-      &nbsp;{{- partial "author-lastmod" . -}}
-      {{- end -}}
-    </time>
-    {{- end -}}
-    {{- with .Params.Author -}}
-    <a class="author-author" href="{{ (urlize (printf " authors/%s/" .)) | absLangURL }}">{{ . }}</a>
-    {{- end -}}
-    {{- if and (.Param "readingTime") (eq (.Param "readingTime") true) -}}
-    <span class="author-reading-time">{{ .ReadingTime }} {{ $.Site.Params.minuteReadingTime | default "min read" }} ({{
-      .WordCount }} {{ $.Site.Params.words | default "words" }})</span>
-    {{- end -}}
-  </div>
 
-  {{ if .Params.tags }}
-  <span class="author-tags">
-    {{ range .Params.tags }}
-    #<a href="{{ (urlize (printf " tags/%s/" .)) | absLangURL }}">{{ . }}</a>&nbsp;
-    {{ end }}
-  </span>
-  {{ end }}
   {{ partial "cover.html" . }}
-
-  {{ if (.Params.Toc | default .Site.Params.Toc) }}
-  <div class="table-of-contents">
-    <h2>
-      {{ (.Params.TocTitle | default .Site.Params.TocTitle) | default "Table of Contents" }}
-    </h2>
-    {{ .TableOfContents }}
-  </div>
-  {{ end }}
 
   <div class="author-content">
     {{- with .Content -}}
